@@ -116,11 +116,49 @@ addDepartment = () => {
         VALUES (?)`;
         db.query(sql, answer.addDepartment, (err, result) => {
             if(err) throw err;
-            console.log("added " + answer.addDepartment);
+            console.log("Added Department: " + answer.addDepartment);
             // console.table(answer);
 
             // db.end();
             showAllDepartments();
+        })
+    })
+
+};
+
+
+
+//function to add a Role
+addRole = () => {
+
+    inquirer.prompt([
+        {
+            type: "input",
+            message: "What role do you want to add?",
+            name: "addRoleTitle"
+        },
+        {
+            type: "input",
+            message: "What is the salary for this role?",
+            name: "addRoleSalary"
+        },
+        {
+            type: "input",
+            message: "What is the department id for this role?",
+            name: "addRoleId"
+        }
+    ])
+    .then(answer => {
+        const sql = `INSERT INTO role (title, salary, department_id) 
+        VALUES (?, ?, ?)`;
+        const params = [answer.addRoleTitle, answer.addRoleSalary, answer.addRoleId]
+        db.query(sql, params, (err, result) => {
+            if(err) throw err;
+            console.log("Added Role: " + answer.addRoleTitle);
+            // console.table(answer);
+
+            // db.end();
+            showAllRoles();
         })
     })
 
@@ -186,7 +224,7 @@ const promptInitialChoices = function() {
 
         if(initialChoices === "Add a role"){
             //call a function to add a role
-            // addRole();
+            addRole();
         }
 
         if(initialChoices === "Add an employee"){
