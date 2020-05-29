@@ -102,7 +102,7 @@ showAllEmployees = () => {
 
 
 //function to add a Department
-addDepartment = (name) => {
+addDepartment = () => {
     console.log('Adding a department...\n');
     // sql = 'INSERT INTO department SET ?';
     // const params = [req.params.id];
@@ -122,16 +122,24 @@ addDepartment = (name) => {
     // console.log(query.sql);
 
     const sql = `INSERT INTO department (name) 
-    VALUES (?)`;
-    const params = [name];
+    VALUES ('$departmentName')`;
+    // const params = [departmentName];
     // ES5 function, not arrow function, to use `this`
-    db.query(sql, params, function(err, result) {
-        if (err) throw err;
-        console.log(res.affectedRows + ' department inserted!\n');
+    // db.query(sql, params, function(err, res) {
+    //     if (err) throw err;
+    //     console.log(res.affectedRows + ' department inserted!\n');
 
     // logs the actual query being run
-    console.log(query.sql);
-    });
+    // console.log(query.sql);
+    // });
+
+
+    db.promise().query(sql, function(err, rows) {
+        if(err) throw err;
+        console.table(rows);
+    })
+        //end executing query
+        db.end();
 };
 
 
@@ -144,7 +152,22 @@ const promptInitialChoices = function() {
             type: "list",
             name: "initialChoices",
             message: "What would you like to do?",
-            choices: ["View all departments", "View all roles", "View all employees", "Add a department", "Add a role", "Add an employee", "Update an employee role"],
+            choices: [
+                "View all departments", 
+                "View all roles", 
+                "View all employees", 
+                "Add a department", 
+                "Add a role", 
+                "Add an employee", 
+                "Update an employee role", 
+                "Update employee manager",
+                "View employees by manager",
+                "View employees by department",
+                "Delete departments",
+                "Delete roles",
+                "Delete employees",
+                "View department budget"
+            ],
             validate: choiceSelection => {
                 if (choiceSelection) {
                     return true;
@@ -155,7 +178,7 @@ const promptInitialChoices = function() {
         }
     ])
     .then((answers) => {
-        const{initialChoices, departmentName} = answers;
+        const{initialChoices} = answers;
 
         if(initialChoices === "View all departments"){
             //call a function to show all departments
@@ -174,8 +197,57 @@ const promptInitialChoices = function() {
 
         if(initialChoices === "Add a department"){
             //call a function to show all roles
- 
             addDepartment();
+        }
+
+        if(initialChoices === "Add a role"){
+            //call a function to add a role
+            // addRole();
+        }
+
+        if(initialChoices === "Add an employee"){
+            //call a function to add an employee
+            // addEmployee();
+        }
+
+        if(initialChoices === "Update an employee role"){
+
+            // updateEmployeeRole();
+        }
+
+        if(initialChoices === "Update employee manager"){
+
+            // updateEmployeeManager();
+        }
+
+        if(initialChoices === "View employees by manager"){
+
+            // viewEmployeesByManager();
+        }
+
+        if(initialChoices === "View employees by department"){
+
+            // viewEmployeesByDepartment();
+        }
+
+        if(initialChoices === "Delete departments"){
+
+            // deleteDepartments();
+        }
+
+        if(initialChoices === "Delete roles"){
+
+            // deleteRoles();
+        }
+
+        if(initialChoices === "Delete employees"){
+
+            // deleteEmployees();
+        }
+
+        if(initialChoices === "View department budget"){
+
+            // viewDepartmentBudget();
         }
 
     })
