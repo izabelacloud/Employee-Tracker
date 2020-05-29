@@ -101,6 +101,22 @@ showAllEmployees = () => {
 };
 
 
+//function to show all employees
+showOneEmployee = () => {
+    console.log('Showing employee...\n');
+    //query to select all employees
+    const sql = `SELECT * FROM employee WHERE name LIKE ?`;
+
+    //execute query
+    db.promise().query(sql, (err, rows) => {
+        if(err) throw err;
+        console.table(rows);
+    })
+        //end executing query
+        db.end();
+};
+
+
 //function to add a Department
 addDepartment = () => {
 
@@ -163,6 +179,79 @@ addRole = () => {
     })
 
 };
+
+
+//function to add a Employee
+addEmployee = () => {
+
+    inquirer.prompt([
+        {
+            type: "input",
+            message: "What is the first name of the employee?",
+            name: "addEmployeeFirstName"
+        },
+        {
+            type: "input",
+            message: "What is the last name of the employee?",
+            name: "addEmployeeLastName"
+        },
+        {
+            type: "input",
+            message: "What is the employee role id?",
+            name: "addEmployeeRoleId"
+        },
+        {
+            type: "input",
+            message: "What is the employee manager id?",
+            name: "addEmployeeManagerId"
+        }
+    ])
+    .then(answer => {
+        const sql = `INSERT INTO employee (first_name, last_name, role_id, manager_id) 
+        VALUES (?, ?, ?, ?)`;
+        const params = [answer.addEmployeeFirstName, answer.addEmployeeLastName, answer.addEmployeeRoleId, answer.addEmployeeManagerId]
+        db.query(sql, params, (err, result) => {
+            if(err) throw err;
+            console.log("Added Role: " + answer.addEmployeeFirstName + " " + answer.addEmployeeLastName);
+            // console.table(answer);
+
+            // db.end();
+            showAllEmployees();
+        })
+    })
+
+};
+
+
+
+//function to add a Employee
+// updateEmployeeRole = () => {
+
+//     inquirer.prompt([
+//         {
+//             type: "list",
+//             message: "Which employee's role would you like to update?",
+//             name: "updateEmployeeRole"
+//         }
+//     ])
+//     .then(answer => {
+//         const sql = `SELECT * FROM employee WHERE  (first_name, last_name, role_id, manager_id) 
+//         VALUES (?, ?, ?, ?)`;
+//         const params = [answer.addEmployeeFirstName, answer.addEmployeeLastName, answer.addEmployeeRoleId, answer.addEmployeeManagerId]
+//         db.query(sql, params, (err, result) => {
+//             if(err) throw err;
+//             console.log("Added Role: " + answer.addEmployeeFirstName + " " + answer.addEmployeeLastName);
+//             // console.table(answer);
+
+//             // db.end();
+//             showAllEmployees();
+//         })
+//     })
+
+// };
+
+
+
 
 
 
@@ -229,7 +318,7 @@ const promptInitialChoices = function() {
 
         if(initialChoices === "Add an employee"){
             //call a function to add an employee
-            // addEmployee();
+            addEmployee();
         }
 
         if(initialChoices === "Update an employee role"){
