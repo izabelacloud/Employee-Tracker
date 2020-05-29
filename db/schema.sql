@@ -1,11 +1,9 @@
+DROP DATABASE IF EXISTS election;
 CREATE DATABASE election;
 USE election;
 DROP TABLE IF EXISTS employee;
 DROP TABLE IF EXISTS role;
 DROP TABLE IF EXISTS department;
-
-
-
 
 
 CREATE TABLE department (
@@ -21,8 +19,6 @@ CREATE TABLE role (
     department_id INTEGER, 
     CONSTRAINT fk_department FOREIGN KEY (department_id) REFERENCES department(id) ON DELETE SET NULL 
 );
-
-
 
 
 CREATE TABLE employee (
