@@ -103,43 +103,27 @@ showAllEmployees = () => {
 
 //function to add a Department
 addDepartment = () => {
-    console.log('Adding a department...\n');
-    // sql = 'INSERT INTO department SET ?';
-    // const params = [req.params.id];
-    // const query = db.query(
-    //   'INSERT INTO department SET ?',
-    //   {
-    //     name: 'test department name'
-    //   },
-    //   function(err, res) {
-    //     if (err) throw err;
-    //     console.log(res.affectedRows + ' department inserted!\n');
-    //     // Call updateProduct() AFTER the INSERT completes
-    //     // updateProduct();
-    //   }
-    // );
-    // // logs the actual query being run
-    // console.log(query.sql);
 
-    const sql = `INSERT INTO department (name) 
-    VALUES ('$departmentName')`;
-    // const params = [departmentName];
-    // ES5 function, not arrow function, to use `this`
-    // db.query(sql, params, function(err, res) {
-    //     if (err) throw err;
-    //     console.log(res.affectedRows + ' department inserted!\n');
+    inquirer.prompt([
+        {
+            type: "input",
+            message: "What department do you want to add?",
+            name: "addDepartment"
+        }
+    ])
+    .then(answer => {
+        const sql = `INSERT INTO department (name) 
+        VALUES (?)`;
+        db.query(sql, answer.addDepartment, (err, result) => {
+            if(err) throw err;
+            console.log("added " + answer.addDepartment);
+            // console.table(answer);
 
-    // logs the actual query being run
-    // console.log(query.sql);
-    // });
-
-
-    db.promise().query(sql, function(err, rows) {
-        if(err) throw err;
-        console.table(rows);
+            // db.end();
+            showAllDepartments();
+        })
     })
-        //end executing query
-        db.end();
+
 };
 
 
