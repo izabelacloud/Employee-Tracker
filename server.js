@@ -89,32 +89,37 @@ showAllRoles = () => {
 showAllEmployees = () => {
     console.log('Showing all employees...\n');
     //query to select all employees
-    const sql = `SELECT * FROM employee`;
+    const sql = `SELECT first_name, last_name, role.title AS title, role.department_id AS department, role.salary AS salary, employee.manager_id AS manager  FROM employee 
+                    JOIN role ON role.id = employee.role_id
+                    JOIN department on department.id = role.department_id
+                   `;
 
+                //    INNER JOIN employee ON employee.id = employee.manager_id
     //execute query
     db.promise().query(sql, (err, rows) => {
         if(err) throw err;
         console.table(rows);
     })
-        //end executing query
-        db.end();
+
+    //end executing query
+    db.end();
 };
 
 
 //function to show all employees
-showOneEmployee = () => {
-    console.log('Showing employee...\n');
-    //query to select all employees
-    const sql = `SELECT * FROM employee WHERE name LIKE ?`;
+// showOneEmployee = () => {
+//     console.log('Showing employee...\n');
+//     //query to select all employees
+//     const sql = `SELECT * FROM employee WHERE name LIKE ?`;
 
-    //execute query
-    db.promise().query(sql, (err, rows) => {
-        if(err) throw err;
-        console.table(rows);
-    })
-        //end executing query
-        db.end();
-};
+//     //execute query
+//     db.promise().query(sql, (err, rows) => {
+//         if(err) throw err;
+//         console.table(rows);
+//     })
+//         //end executing query
+//         db.end();
+// };
 
 
 //function to add a Department
@@ -181,6 +186,22 @@ addRole = () => {
 };
 
 
+//function to choose a role
+chooseRole = () => {
+    inquirer.prompt([
+        {
+            type: "list",
+            message: "What is the role of the employee?",
+            name: "employeeAssignedRole"
+        }
+    ])
+    .then(answer => {
+        console.log(answer);
+    })
+}
+
+
+
 //function to add a Employee
 addEmployee = () => {
 
@@ -195,6 +216,12 @@ addEmployee = () => {
             message: "What is the last name of the employee?",
             name: "addEmployeeLastName"
         },
+        // {
+        //     type: "list",
+        //     name: "employeeRole",
+        //     message: "Please select from the list of roles: ",
+        //     choices: "SELECT * FROM role",
+        // },
         {
             type: "input",
             message: "What is the employee role id?",
@@ -206,6 +233,9 @@ addEmployee = () => {
             name: "addEmployeeManagerId"
         }
     ])
+    // .then(answer => {
+    //      chooseRole();
+    // })
     .then(answer => {
         const sql = `INSERT INTO employee (first_name, last_name, role_id, manager_id) 
         VALUES (?, ?, ?, ?)`;
@@ -225,32 +255,86 @@ addEmployee = () => {
 
 
 //function to add a Employee
-// updateEmployeeRole = () => {
+updateEmployeeRole = () => {
 
-//     inquirer.prompt([
-//         {
-//             type: "list",
-//             message: "Which employee's role would you like to update?",
-//             name: "updateEmployeeRole"
-//         }
-//     ])
-//     .then(answer => {
-//         const sql = `SELECT * FROM employee WHERE  (first_name, last_name, role_id, manager_id) 
-//         VALUES (?, ?, ?, ?)`;
-//         const params = [answer.addEmployeeFirstName, answer.addEmployeeLastName, answer.addEmployeeRoleId, answer.addEmployeeManagerId]
-//         db.query(sql, params, (err, result) => {
-//             if(err) throw err;
-//             console.log("Added Role: " + answer.addEmployeeFirstName + " " + answer.addEmployeeLastName);
-//             // console.table(answer);
+    inquirer.prompt([
+        {
+            type: "list",
+            message: "Which employee's role would you like to update?",
+            name: "updateEmployeeRole"
+        }
+    ])
+    .then(answer => {
+        const sql = `UPDATE employee SET role_id ? 
+        VALUES (?, ?, ?, ?)`;
+        const params = [answer.addEmployeeFirstName, answer.addEmployeeLastName, answer.addEmployeeRoleId, answer.addEmployeeManagerId]
+        db.query(sql, params, (err, result) => {
+            if(err) throw err;
+            console.log("Added Role: " + answer.addEmployeeFirstName + " " + answer.addEmployeeLastName);
+            // console.table(answer);
 
-//             // db.end();
-//             showAllEmployees();
-//         })
+            // db.end();
+            showAllEmployees();
+        })
+    })
+
+};
+
+
+
+viewEmployeesByManager = () => {
+    console.log('Showing all employees by manager...\n');
+    //query to show employees by manager
+
+    const sql = `SELECT manager_id, CONCAT(first_name, " ", last_name) AS Name, 
+                    COUNT(*)
+                    FROM employee
+                    WHERE manager_id = employee.id 
+                    GROUP BY manager_id
+                    ORDER BY manager_id ASC;`
+
+    //execute query
+    db.promise().query(sql, (err, rows) => {
+        if(err) throw err;
+        console.table(rows);
+    })
+
+    //end executing query
+    db.end();
+
+};
+
+
+
+// viewEmployeesByDepartment = () => {
+//     console.log('Showing all employees by department...\n');
+//     //query to show employees by department
+
+//     const sql = `SELECT id, CONCAT(first_name, " ", last_name) AS Name, 
+//                     COUNT(*)
+//                     FROM employee
+//                     JOIN role ON role.id = employee.role_id
+//                     JOIN department ON role.department_id = department.id
+//                     WHERE role_id = role.id 
+//                     GROUP BY role_id
+//                     ORDER BY role_id ASC;`
+
+
+//     // const sql = `SELECT first_name, last_name, role.title AS title, role.department_id AS department, role.salary AS salary, employee.manager_id AS manager  FROM employee 
+//     // JOIN role ON role.id = employee.role_id
+//     // JOIN department on department.id = role.department_id
+//     // `;
+
+//     //execute query
+//     db.promise().query(sql, (err, rows) => {
+//         if(err) throw err;
+//         console.table(rows);
 //     })
 
+//     //end executing query
+//     db.end();
+
 // };
-
-
 
 
 
@@ -333,7 +417,7 @@ const promptInitialChoices = function() {
 
         if(initialChoices === "View employees by manager"){
 
-            // viewEmployeesByManager();
+            viewEmployeesByManager();
         }
 
         if(initialChoices === "View employees by department"){
@@ -366,6 +450,3 @@ const promptInitialChoices = function() {
 
 
 
-
-// promptInitialChoices();
-// showAllDepartments();
