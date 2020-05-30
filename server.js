@@ -365,52 +365,123 @@ addEmployee = () => {
 
     })
 
-    
 
 };
 
 
-//function to update Employee Role
+
+//function to update an Employee Role
 updateEmployeeRole = () => {
 
-    const employeeRoleQuery = `SELECT * FROM employee`;
+    const employees = `SELECT * FROM employee`;
+    const roles = `SELECT * FROM role`;
 
-    db.query(employeeRoleQuery, (err, employeeUpdatedRoles) => {
+
+    db.query(employees, (err, allEmployees) => {
         if(err) throw err;
 
-        const updatedRoleChoices = employeeUpdatedRoles.map(role => {
-            const updatedRoleChoice = {name: role.title, value: role.id};
-            return updatedRoleChoice;
-        });
+
+        db.query(roles, (err, allEmployeeRolesNew) => {
+            if(err) throw err;
 
 
-        inquirer.prompt([
-            {
-                type: "list",
-                message: "Which employee's role would you like to update?",
-                name: "updateEmployeeRole",
-                choices: updatedRoleChoices
-            }
-        ])
-        .then(answer => {
-            const sql = `UPDATE employee SET role_id ? 
-            VALUES (?)`;
-            const params = [answer.updateEmployeeRole]
-            db.query(sql, params, (err, result) => {
-                if(err) throw err;
-                console.log("Updated Role: " + answer.updateEmployeeRole);
-                // console.table(answer);
-    
-                // db.end();
-                showAllEmployees();
-                promptInitialChoices();
+            const employeeChoices = allEmployees.map(employee => {
+                const employeeChoice = {name: (employee.first_name + " " + employee.last_name) , value: employee.id};
+                return employeeChoice;
             })
-        });
 
-    });
+            const roleChoicesNew = allEmployeeRolesNew.map(role => {
+                const roleChoiceNew = {name: role.title, value: role.id};
+                return roleChoiceNew;
+            })
+
+
+
+            inquirer.prompt([
+                {
+                    type: "list",
+                    message: "Select from the list of employees ",
+                    name: "employeeList",
+                    choices: employeeChoices
+                },
+                {
+                    type: "list",
+                    message: "Select from the list of roles ",
+                    name: "employeeRoleList",
+                    choices: roleChoicesNew
+                }
+            ])
+            .then(answer => {
+                const sql = `UPDATE employee SET role_id = ? WHERE id = ?`;
+                const params = [answer.employeeRoleList, answer.employeeList]
+                db.query(sql, params, (err, result) => {
+                    if(err) throw err;
+                    console.log("Updated Employee: " + answer.employeeList + "and set Role to: " + answer.employeeRoleList);
+                    // console.table(answer);
+        
+                    // db.end();
+                    showAllEmployees();
+                    promptInitialChoices();
+                })
+            })
+
+
+
+        })
+
+
+    })
 
 
 };
+
+// //function to update Employee Role
+// updateEmployeeRole = () => {
+
+//     const employeeRoleQuery = `SELECT * FROM employee`;
+
+//     db.query(employeeRoleQuery, (err, employeeUpdatedRoles) => {
+//         if(err) throw err;
+
+//         const updatedRoleChoices = employeeUpdatedRoles.map(role => {
+//             const updatedRoleChoice = {name: role.title, value: role.id};
+//             return updatedRoleChoice;
+//         });
+
+
+//         inquirer.prompt([
+//             {
+//                 type: "list",
+//                 message: "Which employee's role would you like to update?",
+//                 name: "updateEmployeeRole",
+//                 choices: updatedRoleChoices
+//             }
+//         ])
+//         .then(answer => {
+//             const sql = `UPDATE employee SET role_id ? 
+//             VALUES (?)`;
+//             const params = [answer.updateEmployeeRole]
+//             db.query(sql, params, (err, result) => {
+//                 if(err) throw err;
+//                 console.log("Updated Role: " + answer.updateEmployeeRole);
+//                 // console.table(answer);
+    
+//                 // db.end();
+//                 showAllEmployees();
+//                 promptInitialChoices();
+//             })
+//         });
+
+//     });
+
+
+// };
+
+
+
+
+
+
 
 
 
