@@ -28,27 +28,28 @@ app.use((req, res) => {
 db.connect(err => {
     if (err) throw err;
     console.log('connected as id ' + db.threadId);
-    afterConnection();
-  });
+    // afterConnection();
+    promptInitialChoices();
+});
 
 
-afterConnection = () => {
+// afterConnection = () => {
 
-    // console.log('Showing all departments...\n');
-    // //query to select all departments
-    // const sql = `SELECT * FROM department`;
+//     // console.log('Showing all departments...\n');
+//     // //query to select all departments
+//     // const sql = `SELECT * FROM department`;
 
-    // //execute query
-    // db.promise().query(sql, (err, rows) => {
-    //     if(err) throw err;
-    //     console.table(rows);
-    // })
-    promptInitialChoices()
+//     // //execute query
+//     // db.promise().query(sql, (err, rows) => {
+//     //     if(err) throw err;
+//     //     console.table(rows);
+//     // })
+//     promptInitialChoices()
 
 
-        //end executing query
-    // db.end();
-};
+//         //end executing query
+//     // db.end();
+// };
 
 
 
@@ -62,9 +63,12 @@ showAllDepartments = () => {
     db.promise().query(sql, (err, rows) => {
         if(err) throw err;
         console.table(rows);
+
+        promptInitialChoices();
     })
         //end executing query
-        db.end();
+
+        // db.end();
 };
 
 
@@ -79,9 +83,11 @@ showAllRoles = () => {
     db.promise().query(sql, (err, rows) => {
         if(err) throw err;
         console.table(rows);
+
+        promptInitialChoices();
     })
         //end executing query
-        db.end();
+        // db.end();
 };
 
 
@@ -94,15 +100,16 @@ showAllEmployees = () => {
                     JOIN department on department.id = role.department_id
                    `;
 
-                //    INNER JOIN employee ON employee.id = employee.manager_id
     //execute query
     db.promise().query(sql, (err, rows) => {
         if(err) throw err;
         console.table(rows);
+
+        promptInitialChoices();
     })
 
     //end executing query
-    db.end();
+    // db.end();
 };
 
 
@@ -142,6 +149,7 @@ addDepartment = () => {
 
             // db.end();
             showAllDepartments();
+            promptInitialChoices();
         })
     })
 
@@ -180,6 +188,7 @@ addRole = () => {
 
             // db.end();
             showAllRoles();
+            promptInitialChoices();
         })
     })
 
@@ -187,18 +196,18 @@ addRole = () => {
 
 
 //function to choose a role
-chooseRole = () => {
-    inquirer.prompt([
-        {
-            type: "list",
-            message: "What is the role of the employee?",
-            name: "employeeAssignedRole"
-        }
-    ])
-    .then(answer => {
-        console.log(answer);
-    })
-}
+// chooseRole = () => {
+//     inquirer.prompt([
+//         {
+//             type: "list",
+//             message: "What is the role of the employee?",
+//             name: "employeeAssignedRole"
+//         }
+//     ])
+//     .then(answer => {
+//         console.log(answer);
+//     })
+// }
 
 
 
@@ -247,6 +256,7 @@ addEmployee = () => {
 
             // db.end();
             showAllEmployees();
+            promptInitialChoices();
         })
     })
 
@@ -275,6 +285,7 @@ updateEmployeeRole = () => {
 
             // db.end();
             showAllEmployees();
+            promptInitialChoices();
         })
     })
 
@@ -297,10 +308,12 @@ viewEmployeesByManager = () => {
     db.promise().query(sql, (err, rows) => {
         if(err) throw err;
         console.table(rows);
+
+        promptInitialChoices();
     })
 
     //end executing query
-    db.end();
+    // db.end();
 
 };
 
@@ -308,35 +321,43 @@ viewEmployeesByManager = () => {
 
 
 
-// viewEmployeesByDepartment = () => {
-//     console.log('Showing all employees by department...\n');
-//     //query to show employees by department
+viewEmployeesByDepartment = () => {
+    console.log('Showing all employees by department...\n');
+    //query to show employees by department
 
-//     const sql = `SELECT id, CONCAT(first_name, " ", last_name) AS Name, 
-//                     COUNT(*)
-//                     FROM employee
-//                     JOIN role ON role.id = employee.role_id
-//                     JOIN department ON role.department_id = department.id
-//                     WHERE role_id = role.id 
-//                     GROUP BY role_id
-//                     ORDER BY role_id ASC;`
+    const sql = `SELECT COUNT(id), CONCAT(first_name, " ", last_name) AS Name 
+    FROM  employee 
+    JOIN role ON employee.role_id = role.id
+    JOIN department ON role.department_id = department.id
+    GROUP BY  department_id`;
+
+    // const sql = `SELECT id, CONCAT(first_name, " ", last_name) AS Name, 
+    //                 COUNT(*)
+    //                 FROM employee
+    //                 JOIN role ON role.id = employee.role_id
+    //                 JOIN department ON role.department_id = department.id
+    //                 WHERE role_id = role.id 
+    //                 GROUP BY role_id
+    //                 ORDER BY role_id ASC;`
 
 
-//     // const sql = `SELECT first_name, last_name, role.title AS title, role.department_id AS department, role.salary AS salary, employee.manager_id AS manager  FROM employee 
-//     // JOIN role ON role.id = employee.role_id
-//     // JOIN department on department.id = role.department_id
-//     // `;
+    // const sql = `SELECT first_name, last_name, role.title AS title, role.department_id AS department, role.salary AS salary, employee.manager_id AS manager  FROM employee 
+    // JOIN role ON role.id = employee.role_id
+    // JOIN department on department.id = role.department_id
+    // `;
 
-//     //execute query
-//     db.promise().query(sql, (err, rows) => {
-//         if(err) throw err;
-//         console.table(rows);
-//     })
+    //execute query
+    db.promise().query(sql, (err, rows) => {
+        if(err) throw err;
+        console.table(rows);
 
-//     //end executing query
-//     db.end();
+        promptInitialChoices();
+    })
 
-// };
+    //end executing query
+    // db.end();
+
+};
 
 
 viewDepartmentBudget = () => {
@@ -351,10 +372,12 @@ viewDepartmentBudget = () => {
     db.promise().query(sql, (err, rows) => {
         if(err) throw err;
         console.table(rows);
+
+        promptInitialChoices();
     })
 
     //end executing query
-    db.end();
+    // db.end();
 
 };
 
@@ -443,7 +466,7 @@ const promptInitialChoices = function() {
 
         if(initialChoices === "View employees by department"){
 
-            // viewEmployeesByDepartment();
+            viewEmployeesByDepartment();
         }
 
         if(initialChoices === "Delete departments"){
