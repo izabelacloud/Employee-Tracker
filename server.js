@@ -78,7 +78,7 @@ showAllRoles = () => {
     console.log('Showing all roles...\n');
     //query to select all departments
     const sql = `SELECT * FROM role ORDER BY title ASC`;
-    const sql2 = `SELECT role.title, role.salary, department.name AS department FROM role
+    const sql2 = `SELECT role.title, role.salary, role.id, department.name AS department FROM role
                     LEFT JOIN department ON role.department_id = department.id
                     ORDER BY title ASC`;
 
@@ -107,7 +107,7 @@ showAllEmployees = () => {
                         e.first_name, 
                         e.last_name, 
                         role.title, 
-                        department.name, 
+                        department.name AS department, 
                         role.salary, 
                         CONCAT(emp_manager.first_name, " ",  emp_manager.last_name) AS manager 
 
@@ -202,7 +202,7 @@ addRole = () => {
             {
                 type: "input",
                 message: "What role do you want to add?",
-                name: "addRoleTitle",
+                name: "addRoleTitleNew",
                 validate: roleTitleInput => {
                     if(roleTitleInput.match("[a-zA-Z]+$")) {
                         return true;
@@ -215,7 +215,7 @@ addRole = () => {
             {
                 type: "input",
                 message: "What is the salary for this role?",
-                name: "addRoleSalary",
+                name: "addRoleSalaryNew",
                 validate: salaryInput => {
                     if(salaryInput.match("[0-9]+$")) {
                         return true;
@@ -228,14 +228,14 @@ addRole = () => {
             {
                 type: "list",
                 message: "What is the department of this role?",
-                name: "addRoleId",
+                name: "addRoleIdNew",
                 choices: departmentChoicesForRole
             }
         ])
         .then(answer => {
             const sql = `INSERT INTO role (title, salary, department_id) 
             VALUES (?, ?, ?)`;
-            const params = [answer.addRoleTitle, answer.addRoleSalary, answer.addRoleId]
+            const params = [answer.addRoleTitleNew, answer.addRoleSalaryNew, answer.addRoleIdNew]
             db.query(sql, params, (err, result) => {
                 if(err) throw err;
                 console.log("Added Role: " + answer.addRoleTitle);
@@ -307,7 +307,7 @@ addEmployee = () => {
                 {
                     type: "input",
                     message: "What is the first name of the employee?",
-                    name: "addEmployeeFirstName",
+                    name: "addEmployeeFirstNameNew",
                     validate: firstNameInput => {
                         if(firstNameInput.match("[a-zA-Z]+$")) {
                             return true;
@@ -320,7 +320,7 @@ addEmployee = () => {
                 {
                     type: "input",
                     message: "What is the last name of the employee?",
-                    name: "addEmployeeLastName",
+                    name: "addEmployeeLastNameNew",
                     validate: lastNameInput => {
                         if(lastNameInput.match("[a-zA-Z]+$")) {
                             return true;
@@ -333,20 +333,20 @@ addEmployee = () => {
                 {
                     type: "list",
                     message: "Select from the list of roles ",
-                    name: "addEmployeeRoleId",
+                    name: "addEmployeeRoleIdNew",
                     choices: roleChoices
                 },
                 {
                     type: "list",
                     message: "Select from the list of managers ",
-                    name: "addEmployeeManagerId",
+                    name: "addEmployeeManagerIdNew",
                     choices: managerChoices
                 }
             ])
             .then(answer => {
                 const sql = `INSERT INTO employee (first_name, last_name, role_id, manager_id) 
                 VALUES (?, ?, ?, ?)`;
-                const params = [answer.addEmployeeFirstName, answer.addEmployeeLastName, answer.addEmployeeRoleId, answer.addEmployeeManagerId]
+                const params = [answer.addEmployeeFirstNameNew, answer.addEmployeeLastNameNew, answer.addEmployeeRoleIdNew, answer.addEmployeeManagerIdNew]
                 db.query(sql, params, (err, result) => {
                     if(err) throw err;
                     console.log("Added Role: " + answer.addEmployeeFirstName + " " + answer.addEmployeeLastName);
@@ -373,26 +373,26 @@ addEmployee = () => {
 //function to update an Employee Role
 updateEmployeeRole = () => {
 
-    const employees = `SELECT * FROM employee`;
-    const roles = `SELECT * FROM role`;
+    const employeesNew = `SELECT * FROM employee`;
+    const rolesNew = `SELECT * FROM role`;
 
 
-    db.query(employees, (err, allEmployees) => {
+    db.query(employeesNew, (err, allEmployeesForUpdate) => {
         if(err) throw err;
 
 
-        db.query(roles, (err, allEmployeeRolesNew) => {
+        db.query(rolesNew, (err, allEmployeeRolesForUpdate) => {
             if(err) throw err;
 
 
-            const employeeChoices = allEmployees.map(employee => {
-                const employeeChoice = {name: (employee.first_name + " " + employee.last_name) , value: employee.id};
-                return employeeChoice;
+            const employeeChoicesForUpdate = allEmployeesForUpdate.map(employee => {
+                const employeeChoiceForUpdate = {name: (employee.first_name + " " + employee.last_name) , value: employee.id};
+                return employeeChoiceForUpdate;
             })
 
-            const roleChoicesNew = allEmployeeRolesNew.map(role => {
-                const roleChoiceNew = {name: role.title, value: role.id};
-                return roleChoiceNew;
+            const roleChoicesForUpdate = allEmployeeRolesForUpdate.map(role => {
+                const roleChoiceForUpdate = {name: role.title, value: role.id};
+                return roleChoiceForUpdate;
             })
 
 
@@ -401,22 +401,22 @@ updateEmployeeRole = () => {
                 {
                     type: "list",
                     message: "Select from the list of employees ",
-                    name: "employeeList",
-                    choices: employeeChoices
+                    name: "employeeListForUpdate",
+                    choices: employeeChoicesForUpdate
                 },
                 {
                     type: "list",
                     message: "Select from the list of roles ",
-                    name: "employeeRoleList",
-                    choices: roleChoicesNew
+                    name: "employeeRoleListForUpdate",
+                    choices: roleChoicesForUpdate
                 }
             ])
             .then(answer => {
                 const sql = `UPDATE employee SET role_id = ? WHERE id = ?`;
-                const params = [answer.employeeRoleList, answer.employeeList]
+                const params = [answer.employeeRoleListForUpdate, answer.employeeListForUpdate]
                 db.query(sql, params, (err, result) => {
                     if(err) throw err;
-                    console.log("Updated Employee: " + answer.employeeList + "and set Role to: " + answer.employeeRoleList);
+                    console.log("Updated Employee: " + answer.employeeListForUpdate + "and set Role to: " + answer.employeeRoleListForUpdate);
                     // console.table(answer);
         
                     // db.end();
