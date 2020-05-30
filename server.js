@@ -8,7 +8,7 @@ const PORT = process.env.PORT || 3001;
 const app = express();
 
 
-const departments = [];
+// const departments = [];
 
 // const apiRoutes = require('./routes/apiRoutes');
 
@@ -95,13 +95,26 @@ showAllRoles = () => {
 showAllEmployees = () => {
     console.log('Showing all employees...\n');
     //query to select all employees
-    const sql = `SELECT first_name, last_name, role.title AS title, role.department_id AS department, role.salary AS salary, employee.manager_id AS manager  FROM employee 
-                    JOIN role ON role.id = employee.role_id
-                    JOIN department on department.id = role.department_id
-                   `;
+    // const sql = `SELECT first_name, last_name, role.title AS title, role.department_id AS department, role.salary AS salary, employee.manager_id AS manager  FROM employee 
+    //                 JOIN role ON role.id = employee.role_id
+    //                 JOIN department ON department.id = role.department_id
+    //                `;
+
+    const sql2 =    `SELECT e.id, 
+                        e.first_name, 
+                        e.last_name, 
+                        role.title, 
+                        department.name, 
+                        role.salary, 
+                        CONCAT(emp_manager.first_name, " ",  emp_manager.last_name) AS manager 
+
+                    FROM employee e 
+                        LEFT JOIN employee emp_manager ON e.manager_id = emp_manager.id 
+                        LEFT JOIN role ON e.role_id = role.id 
+                        LEFT JOIN department ON role.department_id = department.id`
 
     //execute query
-    db.promise().query(sql, (err, rows) => {
+    db.promise().query(sql2, (err, rows) => {
         if(err) throw err;
         console.table(rows);
 
@@ -214,51 +227,83 @@ addRole = () => {
 //function to add a Employee
 addEmployee = () => {
 
-    inquirer.prompt([
-        {
-            type: "input",
-            message: "What is the first name of the employee?",
-            name: "addEmployeeFirstName"
-        },
-        {
-            type: "input",
-            message: "What is the last name of the employee?",
-            name: "addEmployeeLastName"
-        },
-        // {
-        //     type: "list",
-        //     name: "employeeRole",
-        //     message: "Please select from the list of roles: ",
-        //     choices: `SELECT * FROM role`,
-        // },
-        {
-            type: "input",
-            message: "What is the employee role id?",
-            name: "addEmployeeRoleId"
-        },
-        {
-            type: "input",
-            message: "What is the employee manager id?",
-            name: "addEmployeeManagerId"
-        }
-    ])
-    // .then(answer => {
-    //      chooseRole();
-    // })
-    .then(answer => {
-        const sql = `INSERT INTO employee (first_name, last_name, role_id, manager_id) 
-        VALUES (?, ?, ?, ?)`;
-        const params = [answer.addEmployeeFirstName, answer.addEmployeeLastName, answer.addEmployeeRoleId, answer.addEmployeeManagerId]
-        db.query(sql, params, (err, result) => {
-            if(err) throw err;
-            console.log("Added Role: " + answer.addEmployeeFirstName + " " + answer.addEmployeeLastName);
-            // console.table(answer);
+    const managers = `SELECT * FROM employee`;
 
-            // db.end();
-            showAllEmployees();
-            promptInitialChoices();
+    const roles = `SELECT * FROM role`;
+
+    db.query(roles, (err, allRoles) => {
+        if(err) throw err;
+
+
+        db.query(managers, (err, allManagers) => {
+            if(err) throw err;
+
+            const roleChoices = allRoles.map(role => {
+                const roleChoice = {name: role.title, value: role.id};
+                return roleChoice;
+            })
+
+
+            const managerChoices = allManagers.map(employee => {
+                const managerChoice = {name: employee.firs_name, value: employee.id};
+                return managerChoice;
+            })
+
+
+            inquirer.prompt([
+                {
+                    type: "input",
+                    message: "What is the first name of the employee?",
+                    name: "addEmployeeFirstName"
+                },
+                {
+                    type: "input",
+                    message: "What is the last name of the employee?",
+                    name: "addEmployeeLastName"
+                },
+                {
+                    type: "list",
+                    message: "Select from the list of roles ",
+                    name: "addEmployeeRoleId",
+                    choices: roleChoices
+                },
+                {
+                    type: "list",
+                    message: "Select from the list of managers ",
+                    name: "addEmployeeManagerId",
+                    choices: managerChoices
+                }
+            ])
+            .then(answer => {
+                const sql = `INSERT INTO employee (first_name, last_name, role_id, manager_id) 
+                VALUES (?, ?, ?, ?)`;
+                const params = [answer.addEmployeeFirstName, answer.addEmployeeLastName, answer.addEmployeeRoleId, answer.addEmployeeManagerId]
+                db.query(sql, params, (err, result) => {
+                    if(err) throw err;
+                    console.log("Added Role: " + answer.addEmployeeFirstName + " " + answer.addEmployeeLastName);
+                    // console.table(answer);
+        
+                    // db.end();
+                    showAllEmployees();
+                    promptInitialChoices();
+                })
+            })
+
+
+
         })
+
+
+
+        // console.log("Added Role: " + answer.addEmployeeFirstName + " " + answer.addEmployeeLastName);
+        // // console.table(answer);
+
+        // // db.end();
+        // showAllEmployees();
+        // promptInitialChoices();
     })
+
+    
 
 };
 
@@ -494,7 +539,7 @@ const promptInitialChoices = function() {
 
             //end executing query
             // db.end();
-            return;
+            // return;
         }
 
     })
