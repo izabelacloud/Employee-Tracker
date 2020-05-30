@@ -3,21 +3,14 @@ const cTable = require('console.table');
 const express = require('express');
 const db = require('./db/database');
 const mysql = require('mysql2');
-
 const PORT = process.env.PORT || 3001;
 const app = express();
 
-
-// const departments = [];
-
-// const apiRoutes = require('./routes/apiRoutes');
 
 // Express middleware
 app.use(express.urlencoded({ extended: false }));
 app.use(express.json());
 
-// Use apiRoutes
-// app.use('/api', apiRoutes);
 
 // Default response for any other request (Not Found)
 app.use((req, res) => {
@@ -28,29 +21,16 @@ app.use((req, res) => {
 db.connect(err => {
     if (err) throw err;
     console.log('connected as id ' + db.threadId);
-    // afterConnection();
+    //call function to prompt for initial choices
     promptInitialChoices();
+
 });
 
 
-// afterConnection = () => {
-
-//     // console.log('Showing all departments...\n');
-//     // //query to select all departments
-//     // const sql = `SELECT * FROM department`;
-
-//     // //execute query
-//     // db.promise().query(sql, (err, rows) => {
-//     //     if(err) throw err;
-//     //     console.table(rows);
-//     // })
-//     promptInitialChoices()
 
 
-//         //end executing query
-//     // db.end();
-// };
 
+//********* MAIN FUNCTIONS **************/
 
 
 //function to show all departments
@@ -65,10 +45,9 @@ showAllDepartments = () => {
         console.table(rows);
 
         promptInitialChoices();
-    })
-        //end executing query
 
-        // db.end();
+    })
+
 };
 
 
@@ -89,8 +68,7 @@ showAllRoles = () => {
 
         promptInitialChoices();
     })
-        //end executing query
-        // db.end();
+
 };
 
 
@@ -98,11 +76,6 @@ showAllRoles = () => {
 showAllEmployees = () => {
     console.log('Showing all employees...\n');
     //query to select all employees
-    // const sql = `SELECT first_name, last_name, role.title AS title, role.department_id AS department, role.salary AS salary, employee.manager_id AS manager  FROM employee 
-    //                 JOIN role ON role.id = employee.role_id
-    //                 JOIN department ON department.id = role.department_id
-    //                `;
-
     const sql2 =    `SELECT e.id, 
                         e.first_name, 
                         e.last_name, 
@@ -124,25 +97,8 @@ showAllEmployees = () => {
         promptInitialChoices();
     })
 
-    //end executing query
-    // db.end();
 };
 
-
-//function to show all employees
-// showOneEmployee = () => {
-//     console.log('Showing employee...\n');
-//     //query to select all employees
-//     const sql = `SELECT * FROM employee WHERE name LIKE ?`;
-
-//     //execute query
-//     db.promise().query(sql, (err, rows) => {
-//         if(err) throw err;
-//         console.table(rows);
-//     })
-//         //end executing query
-//         db.end();
-// };
 
 
 //function to add a Department
@@ -174,6 +130,7 @@ addDepartment = () => {
             //calling new functions
             showAllDepartments();
             promptInitialChoices();
+
         })
     })
 
@@ -184,6 +141,7 @@ addDepartment = () => {
 //function to add a Role
 addRole = () => {
 
+    //query to get the departments
     const departmentsQueryforRole = `SELECT name, id FROM department`;
 
 
@@ -233,43 +191,19 @@ addRole = () => {
             const sql = `INSERT INTO role (title, salary, department_id) 
             VALUES (?, ?, ?)`;
 
-            // const sqltest = `INSERT INTO role (title, salary, department_id) VALUES ('${selection.newRoleName}', ${selection.newRoleSalary}, (SELECT id FROM department WHERE name = '${selection.newRoleDept}'))`;
             
             const params = [answer.addRoleTitleNew, answer.addRoleSalaryNew, answer.addRoleIdNew]
             db.query(sql, params, (err, result) => {
                 if(err) throw err;
                 console.log("Added Role: " + answer.addRoleTitle);
-                // console.table(answer);
-    
-                // db.end();
+
                 showAllRoles();
                 promptInitialChoices();
             })
-
         })
-
-
-
-
     })
-
-
 };
 
-
-//function to choose a role
-// chooseRole = () => {
-//     inquirer.prompt([
-//         {
-//             type: "list",
-//             message: "What is the role of the employee?",
-//             name: "employeeAssignedRole"
-//         }
-//     ])
-//     .then(answer => {
-//         console.log(answer);
-//     })
-// }
 
 
 
@@ -277,15 +211,15 @@ addRole = () => {
 addEmployee = () => {
 
     const managerQueryForAddEmployee =   `SELECT 
-                                    empl.manager_id, 
-                                    empl.first_name, 
-                                    empl.last_name, 
-                                    mgr.first_name, 
-                                    mgr.last_name, 
-                                    mgr.id
-                                FROM employee mgr
-                                LEFT JOIN employee empl ON empl.manager_id = mgr.id 
-                                WHERE empl.manager_id is not null;`
+                                                empl.manager_id, 
+                                                empl.first_name, 
+                                                empl.last_name, 
+                                                mgr.first_name, 
+                                                mgr.last_name, 
+                                                mgr.id
+                                            FROM employee mgr
+                                            LEFT JOIN employee empl ON empl.manager_id = mgr.id 
+                                            WHERE empl.manager_id is not null;`
 
     const rolesForAddEmployee = `SELECT id, title, salary, department_id FROM role`;
 
@@ -363,13 +297,9 @@ addEmployee = () => {
                 })
             })
 
-
-
         })
 
-
     })
-
 
 };
 
@@ -430,13 +360,9 @@ updateEmployeeRole = () => {
                 })
             })
 
-
-
         })
 
-
     })
-
 
 };
 
@@ -509,13 +435,9 @@ updateEmployeeManager = () => {
                 })
             })
 
-
-
         })
 
-
     })
-
 
 };
 
@@ -544,7 +466,6 @@ viewEmployeesByManager = () => {
         promptInitialChoices();
     })
 
-
 };
 
 
@@ -556,12 +477,10 @@ viewEmployeesByDepartment = () => {
     //query to show employees by department
 
     const sql = `SELECT department.name, COUNT(employee.id) 
-    FROM  employee 
-    JOIN role ON employee.role_id = role.id
-    JOIN department ON role.department_id = department.id
-    GROUP BY  department_id`;
-
-
+                    FROM  employee 
+                    JOIN role ON employee.role_id = role.id
+                    JOIN department ON role.department_id = department.id
+                    GROUP BY  department_id`;
 
     //execute query
     db.promise().query(sql, (err, rows) => {
@@ -571,10 +490,10 @@ viewEmployeesByDepartment = () => {
         promptInitialChoices();
     })
 
-
 };
 
 
+//function to view department budget
 viewDepartmentBudget = () => {
     console.log('Showing all budget by department...\n');
     //query to show grouped salary by department id
@@ -591,11 +510,7 @@ viewDepartmentBudget = () => {
         promptInitialChoices();
     })
 
-    //end executing query
-    // db.end();
-
 };
-
 
 
 
@@ -626,18 +541,12 @@ deleteDepartments = () => {
             db.query(sql, params, (err, result) => {
                 if(err) throw err;
                 console.log("Deleted Department: " + answer.departmentName);
-                // console.table(answer);
-    
-                // db.end();
+
                 showAllDepartments();
                 promptInitialChoices();
             })
-
         })
-
     })
-
-
 };
 
 
@@ -677,11 +586,8 @@ deleteRoles = () => {
                 showAllRoles();
                 promptInitialChoices();
             })
-
         })
-
     })
-
 };
 
 
@@ -720,27 +626,11 @@ deleteEmployees = () => {
                 showAllEmployees();
                 promptInitialChoices();
             })
-
         })
-
     })
-
 };
 
 
-// choices: [
-//     {
-//       name: "View All Employees",
-//       value: "VIEW_EMPLOYEES"
-//     },
-//     ]
-//     }
-// ]).then(res => {
-// let choice = res.choice;
-// switch (choice) {
-//   case "VIEW_EMPLOYEES":
-//     viewEmployees();
-//     break;
 
 
 //function to initiate the first set of questions to the user
@@ -764,8 +654,7 @@ const promptInitialChoices = function() {
                 "Delete departments",
                 "Delete roles",
                 "Delete employees",
-                "View department budget",
-                "Finish program"
+                "View department budget"
             ],
             validate: choiceSelection => {
                 if (choiceSelection) {
@@ -778,16 +667,6 @@ const promptInitialChoices = function() {
     ])
     .then((answers) => {
         const{initialChoices} = answers;
-        // let initialChoices = answers.initialChoices;
-        // switch (initialChoices) {
-        //     case "View all departments":
-        //         showAllDepartments();
-        //         break;
-
-        //     case "Add a department":
-        //         addDepartment();
-        //         break;
-        // }
 
         if(initialChoices === "View all departments"){
             //call a function to show all departments
@@ -862,12 +741,6 @@ const promptInitialChoices = function() {
             viewDepartmentBudget();
         }
 
-        if(initialChoices === "Finish program"){
-
-            //end executing query
-            db.end();
-            // return;
-        }
 
     });
 }
