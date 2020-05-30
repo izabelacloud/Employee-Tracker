@@ -152,7 +152,7 @@ addDepartment = () => {
         {
             type: "input",
             message: "What department do you want to add?",
-            name: "addDepartment",
+            name: "addNewDepartment",
             validate: departmentNameInput => {
                 if(departmentNameInput.match("[a-zA-Z]+$")) {
                     return true;
@@ -167,9 +167,9 @@ addDepartment = () => {
     .then(answer => {
         const sql = `INSERT INTO department (name) 
         VALUES (?)`;
-        db.query(sql, answer.addDepartment, (err, result) => {
+        db.query(sql, answer.addNewDepartment, (err, result) => {
             if(err) throw err;
-            console.log("Added Department: " + answer.addDepartment);
+            console.log("Added Department: " + answer.addNewDepartment);
             // console.table(answer);
 
             // db.end();
@@ -185,17 +185,17 @@ addDepartment = () => {
 //function to add a Role
 addRole = () => {
 
-    const departments = `SELECT * FROM role`;
-    const departmentsQuery = `SELECT department.id, department.name AS department FROM role
+    // const departments = `SELECT * FROM role`;
+    const departmentsQueryforRole = `SELECT department.id, department.name AS department FROM role
     LEFT JOIN department ON role.department_id = department.id
     ORDER BY title ASC`;
 
-    db.query(departmentsQuery, (err, allAddedDepartments) => {
+    db.query(departmentsQueryforRole, (err, allAddedNewDepartments) => {
         if(err) throw err;
 
-        const departmentChoices = allAddedDepartments.map(department => {
-            const departmentChoice = {name: department.name, value: department.id};
-            return departmentChoice;
+        const departmentChoicesForRole = allAddedNewDepartments.map(department => {
+            const departmentChoiceForRole = {name: department.name, value: department.id};
+            return departmentChoiceForRole;
         })
 
         inquirer.prompt([
@@ -229,7 +229,7 @@ addRole = () => {
                 type: "list",
                 message: "What is the department of this role?",
                 name: "addRoleId",
-                choices: departmentChoices
+                choices: departmentChoicesForRole
             }
         ])
         .then(answer => {
