@@ -170,9 +170,8 @@ addDepartment = () => {
         db.query(sql, answer.addNewDepartment, (err, result) => {
             if(err) throw err;
             console.log("Added Department: " + answer.addNewDepartment);
-            // console.table(answer);
 
-            // db.end();
+            //calling new functions
             showAllDepartments();
             promptInitialChoices();
         })
@@ -187,15 +186,12 @@ addRole = () => {
 
     const departmentsQueryforRole = `SELECT name, id FROM department`;
 
-    // const departmentsQueryforRole = `SELECT department.id, department.name AS department FROM role
-    // LEFT JOIN department ON role.department_id = department.id
-    // ORDER BY title ASC`;
 
     db.query(departmentsQueryforRole, (err, allAddedNewDepartments) => {
         if(err) throw err;
 
-        const departmentChoicesForRole = allAddedNewDepartments.map(department => {
-            const departmentChoiceForRole = {name: department.name, value: department.id};
+        const departmentChoicesForRole = allAddedNewDepartments.map(dept => {
+            const departmentChoiceForRole = {name: dept.name, value: dept.id};
             return departmentChoiceForRole;
         })
 
@@ -252,6 +248,9 @@ addRole = () => {
 
         })
 
+
+
+
     })
 
 
@@ -277,24 +276,24 @@ addRole = () => {
 //function to add a Employee
 addEmployee = () => {
 
-    const managerQueryNew =   `SELECT 
+    const managerQueryForAddEmployee =   `SELECT 
                                     empl.manager_id, 
                                     empl.first_name, 
                                     empl.last_name, 
-                                    man.first_name, 
-                                    man.last_name, 
-                                    man.id
-                                FROM employee man
-                                LEFT JOIN employee empl ON empl.manager_id = man.id 
+                                    mgr.first_name, 
+                                    mgr.last_name, 
+                                    mgr.id
+                                FROM employee mgr
+                                LEFT JOIN employee empl ON empl.manager_id = mgr.id 
                                 WHERE empl.manager_id is not null;`
 
-    const roles = `SELECT id, title, salary, department_id FROM role`;
+    const rolesForAddEmployee = `SELECT id, title, salary, department_id FROM role`;
 
-    db.query(roles, (err, allRoles) => {
+    db.query(rolesForAddEmployee, (err, allRoles) => {
         if(err) throw err;
 
 
-        db.query(managerQueryNew, (err, allManagers) => {
+        db.query(managerQueryForAddEmployee, (err, allManagers) => {
             if(err) throw err;
 
             const roleChoices = allRoles.map(role => {
@@ -303,8 +302,8 @@ addEmployee = () => {
             })
 
 
-            const managerChoices = allManagers.map(man => {
-                const managerChoice = {name: man.first_name + " " + man.last_name , value: man.id};
+            const managerChoices = allManagers.map(mgr => {
+                const managerChoice = {name: mgr.first_name + " " + mgr.last_name , value: mgr.id};
                 return managerChoice;
             })
 
@@ -729,7 +728,19 @@ deleteEmployees = () => {
 };
 
 
-
+// choices: [
+//     {
+//       name: "View All Employees",
+//       value: "VIEW_EMPLOYEES"
+//     },
+//     ]
+//     }
+// ]).then(res => {
+// let choice = res.choice;
+// switch (choice) {
+//   case "VIEW_EMPLOYEES":
+//     viewEmployees();
+//     break;
 
 
 //function to initiate the first set of questions to the user
@@ -753,8 +764,8 @@ const promptInitialChoices = function() {
                 "Delete departments",
                 "Delete roles",
                 "Delete employees",
-                "View department budget"
-                // "Finish program"
+                "View department budget",
+                "Finish program"
             ],
             validate: choiceSelection => {
                 if (choiceSelection) {
@@ -767,15 +778,27 @@ const promptInitialChoices = function() {
     ])
     .then((answers) => {
         const{initialChoices} = answers;
+        // let initialChoices = answers.initialChoices;
+        // switch (initialChoices) {
+        //     case "View all departments":
+        //         showAllDepartments();
+        //         break;
+
+        //     case "Add a department":
+        //         addDepartment();
+        //         break;
+        // }
 
         if(initialChoices === "View all departments"){
             //call a function to show all departments
             showAllDepartments();
+            // return;
         }
 
         if(initialChoices === "View all roles"){
             //call a function to show all roles
             showAllRoles();
+
         }
 
         if(initialChoices === "View all employees"){
@@ -786,6 +809,7 @@ const promptInitialChoices = function() {
         if(initialChoices === "Add a department"){
             //call a function to show all roles
             addDepartment();
+            // return;
         }
 
         if(initialChoices === "Add a role"){
@@ -838,14 +862,14 @@ const promptInitialChoices = function() {
             viewDepartmentBudget();
         }
 
-        // if(initialChoices === "Finish program"){
+        if(initialChoices === "Finish program"){
 
-        //     //end executing query
-        //     // db.end();
-        //     // return;
-        // }
+            //end executing query
+            db.end();
+            // return;
+        }
 
-    })
+    });
 }
 
 
