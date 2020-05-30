@@ -16,9 +16,9 @@ The Employee Tracker application is a command-line application to manage a compa
 
 ## Deployed Application 
 
-[Employee-Tracker]()
+[Employee-Tracker Video](https://drive.google.com/file/d/1KMg1OYMYljfnuNDbbfxDIPO5_nqAAALe/view)
 
-![Image]()
+![Image](https://drive.google.com/file/d/1KMg1OYMYljfnuNDbbfxDIPO5_nqAAALe/view)
 
 ## User Story 
 

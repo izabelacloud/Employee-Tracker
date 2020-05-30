@@ -6,7 +6,6 @@ const mysql = require('mysql2');
 const PORT = process.env.PORT || 3001;
 const app = express();
 
-
 // Express middleware
 app.use(express.urlencoded({ extended: false }));
 app.use(express.json());
@@ -350,11 +349,10 @@ updateEmployeeRole = () => {
                 db.query(sql, params, (err, result) => {
                     if(err) throw err;
                     console.log("Updated Employee: " + answer.employeeListForUpdate + "and set Role to: " + answer.employeeRoleListForUpdate);
-                    // console.table(answer);
-        
-                    // db.end();
+            
+         
                     showAllEmployees();
-                    // promptInitialChoices();
+           
                 })
             })
 
@@ -425,11 +423,10 @@ updateEmployeeManager = () => {
                 db.query(sql, params, (err, result) => {
                     if(err) throw err;
                     console.log("Updated Employee: " + answer.employeeListForManagerUpdate + "and set Manager to: " + answer.managerListForManagerUpdate);
-                    // console.table(answer);
-        
-                    // db.end();
+                    
+
                     showAllEmployees();
-                    // promptInitialChoices();
+            
                 })
             })
 
@@ -541,7 +538,7 @@ deleteDepartments = () => {
                 console.log("Deleted Department: " + answer.departmentName);
 
                 showAllDepartments();
-                // promptInitialChoices();
+             
             })
         })
     })
@@ -578,11 +575,10 @@ deleteRoles = () => {
             db.query(sql, params, (err, result) => {
                 if(err) throw err;
                 console.log("Deleted Role: " + answer.roleNameForDelete);
-                // console.table(answer);
-    
-                // db.end();
+       
+
                 showAllRoles();
-                // promptInitialChoices();
+           
             })
         })
     })
@@ -621,7 +617,7 @@ deleteEmployees = () => {
                 
 
                 showAllEmployees();
-                // promptInitialChoices();
+      
             })
         })
     })
