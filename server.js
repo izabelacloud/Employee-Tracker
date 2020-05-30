@@ -449,14 +449,24 @@ updateEmployeeRole = () => {
 updateEmployeeManager = () => {
 
     const employeesNewForManagerUpdate = `SELECT * FROM employee`;
-    const managerListForManagerUpdate = `SELECT first_name, last_name FROM employee WHERE manager_id != NULL`;
+
+    const managerQueryNew =   `SELECT 
+                                    empl.manager_id, 
+                                    empl.first_name, 
+                                    empl.last_name, 
+                                    man.first_name, 
+                                    man.last_name, 
+                                    man.id
+                                FROM employee man
+                                LEFT JOIN employee empl ON empl.manager_id = man.id 
+                                WHERE empl.manager_id is not null;`
 
 
     db.query(employeesNewForManagerUpdate, (err, allEmployeesForManagerUpdate) => {
         if(err) throw err;
 
 
-        db.query(managerListForManagerUpdate, (err, allManagersForManagerUpdate) => {
+        db.query(managerQueryNew, (err, allManagersForManagerUpdate) => {
             if(err) throw err;
 
 
@@ -465,8 +475,8 @@ updateEmployeeManager = () => {
                 return employeeChoiceForManagerUpdate;
             })
 
-            const managerChoicesForManagerUpdate = allManagersForManagerUpdate.map(manager => {
-                const managerChoiceForManagerUpdate = {name: (manager.first_name + " " + manager.last_name) , value: manager.id};
+            const managerChoicesForManagerUpdate = allManagersForManagerUpdate.map(man => {
+                const managerChoiceForManagerUpdate = {name: man.first_name + " " + man.last_name , value: man.id};
                 return managerChoiceForManagerUpdate;
             })
 
@@ -488,7 +498,7 @@ updateEmployeeManager = () => {
             ])
             .then(answer => {
                 const sql = `UPDATE employee SET manager_id = ? WHERE id = ?`;
-                const params = [answer.employeeListForManagerUpdate, answer.managerListForManagerUpdate]
+                const params = [answer.managerListForManagerUpdate, answer.employeeListForManagerUpdate]
                 db.query(sql, params, (err, result) => {
                     if(err) throw err;
                     console.log("Updated Employee: " + answer.employeeListForManagerUpdate + "and set Manager to: " + answer.managerListForManagerUpdate);
