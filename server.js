@@ -185,10 +185,11 @@ addDepartment = () => {
 //function to add a Role
 addRole = () => {
 
-    // const departments = `SELECT * FROM role`;
-    const departmentsQueryforRole = `SELECT department.id, department.name AS department FROM role
-    LEFT JOIN department ON role.department_id = department.id
-    ORDER BY title ASC`;
+    const departmentsQueryforRole = `SELECT name, id FROM department`;
+
+    // const departmentsQueryforRole = `SELECT department.id, department.name AS department FROM role
+    // LEFT JOIN department ON role.department_id = department.id
+    // ORDER BY title ASC`;
 
     db.query(departmentsQueryforRole, (err, allAddedNewDepartments) => {
         if(err) throw err;
@@ -235,6 +236,9 @@ addRole = () => {
         .then(answer => {
             const sql = `INSERT INTO role (title, salary, department_id) 
             VALUES (?, ?, ?)`;
+
+            // const sqltest = `INSERT INTO role (title, salary, department_id) VALUES ('${selection.newRoleName}', ${selection.newRoleSalary}, (SELECT id FROM department WHERE name = '${selection.newRoleDept}'))`;
+            
             const params = [answer.addRoleTitleNew, answer.addRoleSalaryNew, answer.addRoleIdNew]
             db.query(sql, params, (err, result) => {
                 if(err) throw err;
@@ -273,22 +277,24 @@ addRole = () => {
 //function to add a Employee
 addEmployee = () => {
 
-    const managers = `SELECT * FROM employee`;
+    const managerQueryNew =   `SELECT 
+                                    empl.manager_id, 
+                                    empl.first_name, 
+                                    empl.last_name, 
+                                    man.first_name, 
+                                    man.last_name, 
+                                    man.id
+                                FROM employee man
+                                LEFT JOIN employee empl ON empl.manager_id = man.id 
+                                WHERE empl.manager_id is not null;`
 
-    const managerQuery =    
-        `SELECT e.id, 
-            CONCAT(emp_manager.first_name, " ",  emp_manager.last_name) AS manager 
-
-        FROM employee e 
-            LEFT JOIN employee emp_manager ON e.manager_id = emp_manager.id`
-
-    const roles = `SELECT * FROM role`;
+    const roles = `SELECT id, title, salary, department_id FROM role`;
 
     db.query(roles, (err, allRoles) => {
         if(err) throw err;
 
 
-        db.query(managerQuery, (err, allManagers) => {
+        db.query(managerQueryNew, (err, allManagers) => {
             if(err) throw err;
 
             const roleChoices = allRoles.map(role => {
@@ -297,8 +303,8 @@ addEmployee = () => {
             })
 
 
-            const managerChoices = allManagers.map(employee => {
-                const managerChoice = {name: employee.first_name, value: employee.id};
+            const managerChoices = allManagers.map(man => {
+                const managerChoice = {name: man.first_name + " " + man.last_name , value: man.id};
                 return managerChoice;
             })
 
