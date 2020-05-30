@@ -220,7 +220,7 @@ addEmployee = () => {
         //     type: "list",
         //     name: "employeeRole",
         //     message: "Please select from the list of roles: ",
-        //     choices: "SELECT * FROM role",
+        //     choices: `SELECT * FROM role`,
         // },
         {
             type: "input",
@@ -306,6 +306,8 @@ viewEmployeesByManager = () => {
 
 
 
+
+
 // viewEmployeesByDepartment = () => {
 //     console.log('Showing all employees by department...\n');
 //     //query to show employees by department
@@ -336,6 +338,25 @@ viewEmployeesByManager = () => {
 
 // };
 
+
+viewDepartmentBudget = () => {
+    console.log('Showing all budget by department...\n');
+    //query to show grouped salary by department id
+    const sql = `SELECT department_id, department.name, SUM(salary) 
+                    FROM  role 
+                    JOIN department ON role.department_id = department.id
+                    GROUP BY  department_id`;
+
+    //execute query
+    db.promise().query(sql, (err, rows) => {
+        if(err) throw err;
+        console.table(rows);
+    })
+
+    //end executing query
+    db.end();
+
+};
 
 
 
@@ -442,7 +463,7 @@ const promptInitialChoices = function() {
 
         if(initialChoices === "View department budget"){
 
-            // viewDepartmentBudget();
+            viewDepartmentBudget();
         }
 
     })
