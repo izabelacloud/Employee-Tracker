@@ -527,44 +527,15 @@ viewEmployeesByManager = () => {
     console.log('Showing all employees by manager...\n');
     //query to show employees by manager
 
-    // const sql = `SELECT manager_id, CONCAT(first_name, " ", last_name) AS Name, 
-    //                 COUNT(*)
-    //                 FROM employee
-    //                 WHERE manager_id = employee.id 
-    //                 GROUP BY manager_id
-    //                 ORDER BY manager_id ASC`;
-
-                    const sql3 =    `SELECT e.id, 
-                    e.first_name, 
-                    e.last_name, 
-                    CONCAT(emp_manager.first_name, " ",  emp_manager.last_name) AS manager,
-                    COUNT(*)
-
-
-                    FROM employee e 
-                    LEFT JOIN employee emp_manager ON e.manager_id = emp_manager.id
-                    GROUP BY emp_manager.id`
-
-    // const sql2 = `SELECT manager_id, COUNT(id) 
-    // FROM  employee 
-    // JOIN employee m ON employee.role_id = role.id
-    // JOIN department ON role.department_id = department.id
-    // GROUP BY  department_id`;    
-    
-    const sql4 =    `SELECT e.id, 
-    e.first_name, 
-    e.last_name, 
-    role.title, 
-    department.name AS department, 
-    role.salary, 
-    CONCAT(emp_manager.first_name, " ",  emp_manager.last_name) AS manager,
-    COUNT(emp_manager.id)
-
-FROM employee e 
-    LEFT JOIN employee emp_manager ON e.manager_id = emp_manager.id 
-    LEFT JOIN role ON e.role_id = role.id 
-    LEFT JOIN department ON role.department_id = department.id
-    GROUP BY emp_manager.id`
+    sql = `SELECT 
+                empl.manager_id,
+                man.first_name,
+                man.last_name,
+                COUNT(*) 
+            FROM employee empl, employee man
+            WHERE empl.manager_id = man.id
+            GROUP BY empl.manager_id
+            ORDER BY empl.manager_id ASC;`
 
     //execute query
     db.promise().query(sql, (err, rows) => {
@@ -839,7 +810,7 @@ const promptInitialChoices = function() {
 
         if(initialChoices === "View employees by manager"){
 
-            // viewEmployeesByManager();
+            viewEmployeesByManager();
         }
 
         if(initialChoices === "View employees by department"){
