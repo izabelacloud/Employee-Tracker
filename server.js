@@ -435,54 +435,6 @@ updateEmployeeRole = () => {
 
 };
 
-// //function to update Employee Role
-// updateEmployeeRole = () => {
-
-//     const employeeRoleQuery = `SELECT * FROM employee`;
-
-//     db.query(employeeRoleQuery, (err, employeeUpdatedRoles) => {
-//         if(err) throw err;
-
-//         const updatedRoleChoices = employeeUpdatedRoles.map(role => {
-//             const updatedRoleChoice = {name: role.title, value: role.id};
-//             return updatedRoleChoice;
-//         });
-
-
-//         inquirer.prompt([
-//             {
-//                 type: "list",
-//                 message: "Which employee's role would you like to update?",
-//                 name: "updateEmployeeRole",
-//                 choices: updatedRoleChoices
-//             }
-//         ])
-//         .then(answer => {
-//             const sql = `UPDATE employee SET role_id ? 
-//             VALUES (?)`;
-//             const params = [answer.updateEmployeeRole]
-//             db.query(sql, params, (err, result) => {
-//                 if(err) throw err;
-//                 console.log("Updated Role: " + answer.updateEmployeeRole);
-//                 // console.table(answer);
-    
-//                 // db.end();
-//                 showAllEmployees();
-//                 promptInitialChoices();
-//             })
-//         });
-
-//     });
-
-
-// };
-
-
-
-
-
-
-
 
 
 
@@ -491,12 +443,44 @@ viewEmployeesByManager = () => {
     console.log('Showing all employees by manager...\n');
     //query to show employees by manager
 
-    const sql = `SELECT manager_id, CONCAT(first_name, " ", last_name) AS Name, 
+    // const sql = `SELECT manager_id, CONCAT(first_name, " ", last_name) AS Name, 
+    //                 COUNT(*)
+    //                 FROM employee
+    //                 WHERE manager_id = employee.id 
+    //                 GROUP BY manager_id
+    //                 ORDER BY manager_id ASC`;
+
+                    const sql3 =    `SELECT e.id, 
+                    e.first_name, 
+                    e.last_name, 
+                    CONCAT(emp_manager.first_name, " ",  emp_manager.last_name) AS manager,
                     COUNT(*)
-                    FROM employee
-                    WHERE manager_id = employee.id 
-                    GROUP BY manager_id
-                    ORDER BY manager_id ASC;`
+
+
+                    FROM employee e 
+                    LEFT JOIN employee emp_manager ON e.manager_id = emp_manager.id
+                    GROUP BY emp_manager.id`
+
+    // const sql2 = `SELECT manager_id, COUNT(id) 
+    // FROM  employee 
+    // JOIN employee m ON employee.role_id = role.id
+    // JOIN department ON role.department_id = department.id
+    // GROUP BY  department_id`;    
+    
+    const sql4 =    `SELECT e.id, 
+    e.first_name, 
+    e.last_name, 
+    role.title, 
+    department.name AS department, 
+    role.salary, 
+    CONCAT(emp_manager.first_name, " ",  emp_manager.last_name) AS manager,
+    COUNT(emp_manager.id)
+
+FROM employee e 
+    LEFT JOIN employee emp_manager ON e.manager_id = emp_manager.id 
+    LEFT JOIN role ON e.role_id = role.id 
+    LEFT JOIN department ON role.department_id = department.id
+    GROUP BY emp_manager.id`
 
     //execute query
     db.promise().query(sql, (err, rows) => {
@@ -506,8 +490,6 @@ viewEmployeesByManager = () => {
         promptInitialChoices();
     })
 
-    //end executing query
-    // db.end();
 
 };
 
@@ -519,26 +501,13 @@ viewEmployeesByDepartment = () => {
     console.log('Showing all employees by department...\n');
     //query to show employees by department
 
-    const sql = `SELECT COUNT(id), CONCAT(first_name, " ", last_name) AS Name 
+    const sql = `SELECT department.name, COUNT(employee.id) 
     FROM  employee 
     JOIN role ON employee.role_id = role.id
     JOIN department ON role.department_id = department.id
     GROUP BY  department_id`;
 
-    // const sql = `SELECT id, CONCAT(first_name, " ", last_name) AS Name, 
-    //                 COUNT(*)
-    //                 FROM employee
-    //                 JOIN role ON role.id = employee.role_id
-    //                 JOIN department ON role.department_id = department.id
-    //                 WHERE role_id = role.id 
-    //                 GROUP BY role_id
-    //                 ORDER BY role_id ASC;`
 
-
-    // const sql = `SELECT first_name, last_name, role.title AS title, role.department_id AS department, role.salary AS salary, employee.manager_id AS manager  FROM employee 
-    // JOIN role ON role.id = employee.role_id
-    // JOIN department on department.id = role.department_id
-    // `;
 
     //execute query
     db.promise().query(sql, (err, rows) => {
@@ -548,8 +517,6 @@ viewEmployeesByDepartment = () => {
         promptInitialChoices();
     })
 
-    //end executing query
-    // db.end();
 
 };
 
@@ -628,28 +595,28 @@ deleteRoles = () => {
 
     const roleList = `SELECT * FROM role`;
 
-    db.query(roleList, (err, allRoles) => {
+    db.query(roleList, (err, allRolesForDelete) => {
         if(err) throw err;
 
-        const roleChoices = allRoles.map(role => {
-            const roleChoice = {name: role.title, value: role.id};
-            return roleChoice;
+        const roleChoicesForDelete = allRolesForDelete.map(role => {
+            const roleChoiceForDelete = {name: role.title, value: role.id};
+            return roleChoiceForDelete;
         })
 
         inquirer.prompt([
             {
                 type: "list",
                 message: "What role do you want to delete?",
-                name: "roleName",
-                choices: roleChoices
+                name: "roleNameForDelete",
+                choices: roleChoicesForDelete
             }
         ])
         .then(answer => {
             const sql = `DELETE FROM role WHERE id = ?`;
-            const params = [answer.roleName]
+            const params = [answer.roleNameForDelete]
             db.query(sql, params, (err, result) => {
                 if(err) throw err;
-                console.log("Deleted Role: " + answer.roleName);
+                console.log("Deleted Role: " + answer.roleNameForDelete);
                 // console.table(answer);
     
                 // db.end();
@@ -669,30 +636,30 @@ deleteRoles = () => {
 //function to delete an Employee
 deleteEmployees = () => {
 
-    const employeeList = `SELECT * FROM employee`;
+    const employeeListForDelete = `SELECT * FROM employee`;
 
-    db.query(employeeList, (err, allEmployees) => {
+    db.query(employeeListForDelete, (err, allEmployeesForDelete) => {
         if(err) throw err;
 
-        const employeeChoices = allEmployees.map(employee => {
-            const employeeChoice = {name: employee.last_name, value: employee.id};
-            return employeeChoice;
+        const employeeChoicesForDelete = allEmployeesForDelete.map(employee => {
+            const employeeChoiceForDelete = {name: employee.first_name + " " + employee.last_name, value: employee.id};
+            return employeeChoiceForDelete;
         })
 
         inquirer.prompt([
             {
                 type: "list",
                 message: "Which employee do you want to remove?",
-                name: "employeeName",
-                choices: employeeChoices
+                name: "employeeNameForDelete",
+                choices: employeeChoicesForDelete
             }
         ])
         .then(answer => {
             const sql = `DELETE FROM employee WHERE id = ?`;
-            const params = [answer.employeeName]
+            const params = [answer.employeeNameForDelete]
             db.query(sql, params, (err, result) => {
                 if(err) throw err;
-                console.log("Removed employee: " + answer.employeeName);
+                console.log("Removed employee: " + answer.employeeNameForDelete);
                 // console.table(answer);
     
                 // db.end();
@@ -788,7 +755,7 @@ const promptInitialChoices = function() {
 
         if(initialChoices === "View employees by manager"){
 
-            viewEmployeesByManager();
+            // viewEmployeesByManager();
         }
 
         if(initialChoices === "View employees by department"){
