@@ -438,6 +438,74 @@ updateEmployeeRole = () => {
 
 
 
+
+//function to update an Employee Manager
+updateEmployeeManager = () => {
+
+    const employeesNewForManagerUpdate = `SELECT * FROM employee`;
+    const managerListForManagerUpdate = `SELECT first_name, last_name FROM employee WHERE manager_id != NULL`;
+
+
+    db.query(employeesNewForManagerUpdate, (err, allEmployeesForManagerUpdate) => {
+        if(err) throw err;
+
+
+        db.query(managerListForManagerUpdate, (err, allManagersForManagerUpdate) => {
+            if(err) throw err;
+
+
+            const employeeChoicesForManagerUpdate = allEmployeesForManagerUpdate.map(employee => {
+                const employeeChoiceForManagerUpdate = {name: (employee.first_name + " " + employee.last_name) , value: employee.id};
+                return employeeChoiceForManagerUpdate;
+            })
+
+            const managerChoicesForManagerUpdate = allManagersForManagerUpdate.map(manager => {
+                const managerChoiceForManagerUpdate = {name: (manager.first_name + " " + manager.last_name) , value: manager.id};
+                return managerChoiceForManagerUpdate;
+            })
+
+
+
+            inquirer.prompt([
+                {
+                    type: "list",
+                    message: "Select from the list of employees ",
+                    name: "employeeListForManagerUpdate",
+                    choices: employeeChoicesForManagerUpdate
+                },
+                {
+                    type: "list",
+                    message: "Select from the list of managers ",
+                    name: "managerListForManagerUpdate",
+                    choices: managerChoicesForManagerUpdate
+                }
+            ])
+            .then(answer => {
+                const sql = `UPDATE employee SET manager_id = ? WHERE id = ?`;
+                const params = [answer.employeeListForManagerUpdate, answer.managerListForManagerUpdate]
+                db.query(sql, params, (err, result) => {
+                    if(err) throw err;
+                    console.log("Updated Employee: " + answer.employeeListForManagerUpdate + "and set Manager to: " + answer.managerListForManagerUpdate);
+                    // console.table(answer);
+        
+                    // db.end();
+                    showAllEmployees();
+                    promptInitialChoices();
+                })
+            })
+
+
+
+        })
+
+
+    })
+
+
+};
+
+
+
 //function to view employees by manager
 viewEmployeesByManager = () => {
     console.log('Showing all employees by manager...\n');
@@ -750,7 +818,7 @@ const promptInitialChoices = function() {
 
         if(initialChoices === "Update employee manager"){
 
-            // updateEmployeeManager();
+            updateEmployeeManager();
         }
 
         if(initialChoices === "View employees by manager"){
