@@ -405,7 +405,8 @@ const promptInitialChoices = function() {
                 "Delete departments",
                 "Delete roles",
                 "Delete employees",
-                "View department budget"
+                "View department budget",
+                "Finish program"
             ],
             validate: choiceSelection => {
                 if (choiceSelection) {
@@ -487,6 +488,13 @@ const promptInitialChoices = function() {
         if(initialChoices === "View department budget"){
 
             viewDepartmentBudget();
+        }
+
+        if(initialChoices === "Finish program"){
+
+            //end executing query
+            // db.end();
+            return;
         }
 
     })
