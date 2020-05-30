@@ -30,7 +30,7 @@ db.connect(err => {
 
 
 
-//********* MAIN FUNCTIONS **************/
+//********* MAIN FUNCTIONS **************//
 
 
 //function to show all departments
@@ -40,7 +40,7 @@ showAllDepartments = () => {
     const sql = `SELECT * FROM department ORDER BY name ASC`;
 
     //execute query
-    db.promise().query(sql, (err, rows) => {
+    db.query(sql, (err, rows) => {
         if(err) throw err;
         console.table(rows);
 
@@ -129,8 +129,7 @@ addDepartment = () => {
 
             //calling new functions
             showAllDepartments();
-            promptInitialChoices();
-
+            
         })
     })
 
@@ -198,7 +197,7 @@ addRole = () => {
                 console.log("Added Role: " + answer.addRoleTitle);
 
                 showAllRoles();
-                promptInitialChoices();
+          
             })
         })
     })
@@ -289,11 +288,10 @@ addEmployee = () => {
                 db.query(sql, params, (err, result) => {
                     if(err) throw err;
                     console.log("Added Role: " + answer.addEmployeeFirstName + " " + answer.addEmployeeLastName);
-                    // console.table(answer);
-        
-                    // db.end();
+       
+
                     showAllEmployees();
-                    promptInitialChoices();
+               
                 })
             })
 
@@ -356,7 +354,7 @@ updateEmployeeRole = () => {
         
                     // db.end();
                     showAllEmployees();
-                    promptInitialChoices();
+                    // promptInitialChoices();
                 })
             })
 
@@ -431,7 +429,7 @@ updateEmployeeManager = () => {
         
                     // db.end();
                     showAllEmployees();
-                    promptInitialChoices();
+                    // promptInitialChoices();
                 })
             })
 
@@ -543,7 +541,7 @@ deleteDepartments = () => {
                 console.log("Deleted Department: " + answer.departmentName);
 
                 showAllDepartments();
-                promptInitialChoices();
+                // promptInitialChoices();
             })
         })
     })
@@ -584,7 +582,7 @@ deleteRoles = () => {
     
                 // db.end();
                 showAllRoles();
-                promptInitialChoices();
+                // promptInitialChoices();
             })
         })
     })
@@ -620,11 +618,10 @@ deleteEmployees = () => {
             db.query(sql, params, (err, result) => {
                 if(err) throw err;
                 console.log("Removed employee: " + answer.employeeNameForDelete);
-                // console.table(answer);
-    
-                // db.end();
+                
+
                 showAllEmployees();
-                promptInitialChoices();
+                // promptInitialChoices();
             })
         })
     })
